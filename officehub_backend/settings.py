@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     'blogApp',
     'notificationApp',
     'survey',
+    'applicationApp',
 ]
 
 MIDDLEWARE = [
@@ -35,6 +37,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'officehub_backend.middleware.AllowMediaIframeMiddleware',
 ]
 
 ROOT_URLCONF = 'officehub_backend.urls'
@@ -106,9 +109,11 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3500",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3500",
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True  # Use only for testing; not recommended for production
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -125,6 +130,10 @@ CORS_ALLOW_METHODS = [
     'OPTIONS',
 ]
 
+# X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'ALLOWALL'
+
+
 # Temporarily allow all origins for debugging
 # CORS_ALLOW_ALL_ORIGINS = True
 
@@ -134,3 +143,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'princemugabe567@gmail.com'
 EMAIL_HOST_PASSWORD = 'nbgz znts lszv grev'
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = '/uploads/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
