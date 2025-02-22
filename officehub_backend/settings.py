@@ -113,7 +113,7 @@ SIMPLE_JWT = {
 #     "http://localhost:3500",
 # ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # Use only for testing; not recommended for production
+CORS_ALLOW_ALL_ORIGINS = True  
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -128,6 +128,7 @@ CORS_ALLOW_METHODS = [
     'PUT',
     'DELETE',
     'OPTIONS',
+    "PATCH",
 ]
 
 # X_FRAME_OPTIONS = 'SAMEORIGIN'

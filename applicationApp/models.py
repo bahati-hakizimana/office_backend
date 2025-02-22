@@ -1,5 +1,5 @@
-# models.py
 from django.db import models
+from django.conf import settings  # Import settings to get the custom user model
 
 class Applicant(models.Model):
     STATUS_CHOICES = [
@@ -16,6 +16,7 @@ class Applicant(models.Model):
     national_id = models.FileField(upload_to='national_ids/')
     degree_or_diploma = models.FileField(upload_to='degrees/')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="applications")
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

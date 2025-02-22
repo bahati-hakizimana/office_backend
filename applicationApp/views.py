@@ -1,30 +1,52 @@
-from django.shortcuts import render
-
-# Create your views here.
-# Create your views here.
-# views.py
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from .models import Applicant
 from .serializers import ApplicantSerializer
 
-# View to list all applications and create new ones
 class ApplicantListView(ListCreateAPIView):
-    queryset = Applicant.objects.all()
     serializer_class = ApplicantSerializer
+    permission_classes = [IsAuthenticated]
 
-# View to retrieve, update status, and delete a specific application
+    def get_queryset(self):
+        """Admins can see all applications, regular users see only their own"""
+        user = self.request.user
+        if user.is_staff:  # Check if the user is an admin
+            return Applicant.objects.all()
+        return Applicant.objects.filter(created_by=user)
+
+    def perform_create(self, serializer):
+        """Set the created_by field to the authenticated user"""
+        serializer.save(created_by=self.request.user)
+
+
 class ApplicantDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = Applicant.objects.all()
     serializer_class = ApplicantSerializer
+    permission_classes = [IsAuthenticated]
 
-    def put(self, request, *args, **kwargs):
+    def get_queryset(self):
+        """Admins can access all applications, users can access only their own"""
+        user = self.request.user
+        if user.is_staff:
+            return Applicant.objects.all()
+        return Applicant.objects.filter(created_by=user)
+
+    def patch(self, request, *args, **kwargs):
+        """Update the status of an applicant"""
         applicant = self.get_object()
-        new_status = request.data.get("status")  # Renamed variable to avoid conflict
-        if new_status and new_status in [choice[0] for choice in Applicant.STATUS_CHOICES]:
+        new_status = request.data.get("status")
+
+        if new_status in dict(Applicant.STATUS_CHOICES):
             applicant.status = new_status
             applicant.save()
-            return Response({"status": f"Application status updated to {new_status}"}, status=new_status.HTTP_200_OK)
-        return Response({"error": "Invalid status"}, status=new_status_status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": f"Application status updated to {new_status}"},
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {"error": "Invalid status. Choose from 'pending', 'approved', or 'denied'."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
